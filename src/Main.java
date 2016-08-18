@@ -10,8 +10,8 @@ public class Main {
 	         BufferedReader br = new BufferedReader(new FileReader(args[0]));
 	         String[] params = br.readLine().split("\\s"); //getParams
 	         int arraySize = Integer.parseInt(params[0]);
-	         int exitX = Integer.parseInt(params[1]);
-	         int exitY = Integer.parseInt(params[2]);
+	         int entryX = Integer.parseInt(params[1]);
+	         int entryY = Integer.parseInt(params[2]);
 	         String[][] mazeArray = new String[arraySize][arraySize];
 	         int count = 0;
 	         while ((thisLine = br.readLine()) != null) {
@@ -20,7 +20,7 @@ public class Main {
 	        	 count++;
 	         }       
 	         br.close();
-	         Maze maze = new Maze(mazeArray, exitX, exitY);
+	         Maze maze = new Maze(mazeArray, entryX, entryY);
 	         maze.findExit(maze, args[1]);
 	         
 	      } catch(Exception e){
