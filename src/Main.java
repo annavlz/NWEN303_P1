@@ -12,6 +12,7 @@ public class Main {
 	         int arraySize = Integer.parseInt(params[0]);
 	         int entryX = Integer.parseInt(params[1]);
 	         int entryY = Integer.parseInt(params[2]);
+	         int fNum = Integer.parseInt(args[1]);
 	         Cell[][] mazeArray = new Cell[arraySize][arraySize];
 	         int count = 0;
 	         while ((thisLine = br.readLine()) != null) {
@@ -24,7 +25,7 @@ public class Main {
 	         }       
 	         br.close();	         
 	         Maze maze = new Maze(mazeArray, entryX, entryY);
-	         maze.findExit(maze, args[1]);
+	         maze.findExit(maze, fNum);
 	         
 	      } catch(Exception e){
 	         e.printStackTrace();

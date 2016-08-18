@@ -1,15 +1,12 @@
+import java.util.ArrayList;
 
 public class Cell {
 	boolean isWall;
-	boolean isEntry = false;
-	Cell northN;
-	Cell southN;
-	Cell westN;
-	Cell eastN; 
+	ArrayList<Cell> nbrs = new ArrayList <Cell>();
 	boolean visited = false;
 	boolean exitPath = false;
 	Cell parent;
-	int friends = 0;
+	int fNum = 0;
 	
 	public Cell (String type){
 		if(type == "X"){
