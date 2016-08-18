@@ -12,14 +12,17 @@ public class Main {
 	         int arraySize = Integer.parseInt(params[0]);
 	         int entryX = Integer.parseInt(params[1]);
 	         int entryY = Integer.parseInt(params[2]);
-	         String[][] mazeArray = new String[arraySize][arraySize];
+	         Cell[][] mazeArray = new Cell[arraySize][arraySize];
 	         int count = 0;
 	         while ((thisLine = br.readLine()) != null) {
 	        	 String[] row = br.readLine().split("");
-	        	 mazeArray[count] = row;
+	        	 for(int i = 0; i < row.length; i++){
+	        		 Cell cell = new Cell(row[i]);
+		        	 mazeArray[count][i] = cell;
+	        	 }	        	 
 	        	 count++;
 	         }       
-	         br.close();
+	         br.close();	         
 	         Maze maze = new Maze(mazeArray, entryX, entryY);
 	         maze.findExit(maze, args[1]);
 	         
