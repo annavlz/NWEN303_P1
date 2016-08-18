@@ -19,6 +19,9 @@ public class Main {
 	        	 String[] row = br.readLine().split("");
 	        	 for(int i = 0; i < row.length; i++){
 	        		 Cell cell = new Cell(row[i]);
+	        		 if(i == 0 || i == 9 || count == 0 || count == 9){
+	        			 cell.isEdge = true;
+	        		 }
 		        	 mazeArray[count][i] = cell;
 	        	 }	        	 
 	        	 count++;

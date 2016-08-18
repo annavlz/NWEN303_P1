@@ -7,6 +7,7 @@ public class Maze {
 	int entryX;
 	int entryY;
 	Cell entry;
+	Cell exit;
 //	private Map<Coords, Cell> maze = new HashMap<Coords, Cell>();
 	
 	public Maze(Cell[][] mazeArray, int entryX, int entryY) {
@@ -34,7 +35,7 @@ public class Maze {
 
 	public void findExit(Maze maze, int fNum) {
 		entry.fNum = fNum;
-		entry.visited = true;
+//		entry.visited = true;
 		ArrayList<Cell> options = findOptions(this.entry);
 		chooseWay(this.entry, options);	
 	}
@@ -42,16 +43,47 @@ public class Maze {
 	
 	private void chooseWay(Cell from, ArrayList<Cell> options) {
 		if(options.size() == 1){
-			move(from, options.get(0), from.fNum);
+			move(from, options.get(0), from.fNum);		
+		} else if (options.size() == 2){
+			int group1 = from.fNum / 2;
+			int group2 = from.fNum - group1;
+			move(from, options.get(0), group1);		
+			move(from, options.get(1), group2);		
+		} else if (options.size() == 3){
+			int group1 = from.fNum / 3;
+			int group2 = (from.fNum - group1) / 2;		
+			int group3 = from.fNum - group1 - group2;
+			move(from, options.get(0), group1);		
+			move(from, options.get(1), group2);		
+			move(from, options.get(2), group3);		
+		} else {
+			goBack(from);
+		}		
+	}
+
+	private void goBack(Cell from) {
+		if(from is not last intersection){
+			from.deadEnd = true;
+			from.parent.fNum += from.fNum;
+			goBack(from.parent);
 		}
-		
 	}
 
 	private void move(Cell from, Cell to, int howMany) {
 		to.parent = from;
 		to.fNum = howMany;
-		from.fNum =- howMany;
-		to.visited = true;	
+		from.fNum -= howMany;
+		from.visited = true;
+		if(to.isEdge == true){
+			markExitPath(to);
+		} else {
+			chooseWay(to, findOptions(to));
+		}
+	}
+
+	private void markExitPath(Cell exit) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public ArrayList<Cell> findOptions (Cell point){
