@@ -5,10 +5,10 @@ public class Cell {
 	boolean isEdge;
 	boolean deadEnd;
 	ArrayList<Cell> nbrs = new ArrayList <Cell>();
-	boolean visited = false;
 	boolean exitPath = false;
 	Cell parent;
 	int fNum = 0;
+	boolean entry = false;
 	
 	public Cell (String type){
 		if(type == "X"){

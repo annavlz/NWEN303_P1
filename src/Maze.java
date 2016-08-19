@@ -8,7 +8,6 @@ public class Maze {
 	int entryY;
 	Cell entry;
 	Cell exit;
-//	private Map<Coords, Cell> maze = new HashMap<Coords, Cell>();
 	
 	public Maze(Cell[][] mazeArray, int entryX, int entryY) {
 		this.mazeArray = mazeArray;
@@ -19,15 +18,14 @@ public class Maze {
 
 	private void createMaze() {
 		entry = mazeArray[entryY][entryX];
+		entry.entry = true;
 		for(int y = 0; y < mazeArray.length; y++){
 			for(int x = 0; x < mazeArray.length; x++){
 				Cell cell = mazeArray[y][x];
-				Coords coords = new Coords(x+1, y+1);
 				cell.nbrs.add(mazeArray[y-1][x]);
 				cell.nbrs.add(mazeArray[y+1][x]);
 				cell.nbrs.add(mazeArray[y][x-1]);
 				cell.nbrs.add(mazeArray[y][x+1]);
-//				maze.put(coords, cell);
 			}
 		}		
 	}
@@ -35,70 +33,64 @@ public class Maze {
 
 	public void findExit(Maze maze, int fNum) {
 		entry.fNum = fNum;
-//		entry.visited = true;
+		chooseWay(this.entry);	
+	}
+	
+	
+	private void chooseWay(Cell from) {
 		ArrayList<Cell> options = findOptions(this.entry);
-		chooseWay(this.entry, options);	
-	}
-	
-	
-	private void chooseWay(Cell from, ArrayList<Cell> options) {
 		if(options.size() == 1){
-			move(from, options.get(0), from.fNum);		
-		} else if (options.size() == 2){
-			int group1 = from.fNum / 2;
-			int group2 = from.fNum - group1;
-			move(from, options.get(0), group1);		
-			move(from, options.get(1), group2);		
-		} else if (options.size() == 3){
-			int group1 = from.fNum / 3;
-			int group2 = (from.fNum - group1) / 2;		
-			int group3 = from.fNum - group1 - group2;
-			move(from, options.get(0), group1);		
-			move(from, options.get(1), group2);		
-			move(from, options.get(2), group3);		
+			go(from, options.get(0), from.fNum);
+		} else if (options.size() > 1){
+			divide (from, from.fNum, options);
 		} else {
-			goBack(from);
-		}		
-	}
-
-	private void goBack(Cell from) {
-		if(from is not last intersection){
-			from.deadEnd = true;
-			from.parent.fNum += from.fNum;
-			goBack(from.parent);
+			ActionB _return = new ActionB (from); 
+			Thread goBack = new Thread(_return);
+			goBack.start();
+			//move.join();
+			if(_return.canProceed){
+				
+			};
 		}
 	}
-
-	private void move(Cell from, Cell to, int howMany) {
-		to.parent = from;
-		to.fNum = howMany;
-		from.fNum -= howMany;
-		from.visited = true;
-		if(to.isEdge == true){
-			markExitPath(to);
-		} else {
-			chooseWay(to, findOptions(to));
+	
+	private void divide (Cell from, int group, ArrayList<Cell>options){
+		if (group > 0){
+			int party = group / options.size();
+			if(party == 0){
+				party = 1;
+			}
+			go(from, options.get(0), party);
+			options.remove(0);
+			divide(from, group - party, options);
 		}
 	}
-
-	private void markExitPath(Cell exit) {
-		// TODO Auto-generated method stub
-		
+	public void go (Cell from, Cell to, int howMany) {
+		ActionF action = new ActionF (from, to, howMany); 
+		Thread move = new Thread(action);
+		move.start();
+		//move.join();
+		if(action.canProceed){
+			chooseWay(to);
+		} else {
+			if(to.isEdge && this.exit.fNum == this.entry.fNum){
+				System.out.println("To the pub!");
+			}
+		}
 	}
-
+	
 	public ArrayList<Cell> findOptions (Cell point){
 		ArrayList<Cell> options = new ArrayList<Cell>();
 			for(Cell nbr : point.nbrs){
 				if(nbr.exitPath == true){
-					ArrayList<Cell>exit = new ArrayList<Cell>();
-					exit.add(nbr);
-					return exit;
+					ArrayList<Cell>exitPath = new ArrayList<Cell>();
+					exitPath.add(nbr);
+					return exitPath;
 				}
-				if(!(nbr == null) && !nbr.isWall && !nbr.visited){
+				if(!(nbr == null) && !nbr.isWall && !nbr.deadEnd){
 					options.add(nbr);
 				}
 			}
 		return options;
 	}
-	
 }
