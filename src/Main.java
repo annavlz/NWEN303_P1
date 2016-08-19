@@ -16,7 +16,8 @@ public class Main {
 	         Cell[][] mazeArray = new Cell[arraySize][arraySize];
 	         int count = 0;
 	         while ((thisLine = br.readLine()) != null) {
-	        	 String[] row = br.readLine().split("");
+	        	 String[] row = thisLine.split("");
+	        	 
 	        	 for(int i = 0; i < row.length; i++){
 	        		 Cell cell = new Cell(row[i]);
 	        		 if(i == 0 || i == 9 || count == 0 || count == 9){
@@ -28,7 +29,7 @@ public class Main {
 	         }       
 	         br.close();	         
 	         Maze maze = new Maze(mazeArray, entryX, entryY);
-	         maze.findExit(maze, fNum);
+	         //maze.findExit(maze, fNum);
 	         
 	      } catch(Exception e){
 	         e.printStackTrace();

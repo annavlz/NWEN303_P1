@@ -8,13 +8,14 @@ public class Cell {
 	boolean exitPath = false;
 	Cell parent;
 	int fNum = 0;
-	boolean entry = false;
+	boolean isEntry = false;
 	
 	public Cell (String type){
+		//System.out.println(type);
 		if(type == "X"){
-			isWall = true;
+			this.isWall = true;
 		} else {
-			isWall = false;
+			this.isWall = false;
 		}
 	}
 }

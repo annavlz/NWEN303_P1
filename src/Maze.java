@@ -17,10 +17,10 @@ public class Maze {
 	}
 
 	private void createMaze() {
-		entry = mazeArray[entryY][entryX];
-		entry.entry = true;
-		for(int y = 0; y < mazeArray.length; y++){
-			for(int x = 0; x < mazeArray.length; x++){
+		this.entry = mazeArray[entryY][entryX];
+		this.entry.isEntry = true;
+		for(int y = 0; y < mazeArray.length-1; y++){
+			for(int x = 0; x < mazeArray.length-1; x++){
 				Cell cell = mazeArray[y][x];
 				cell.nbrs.add(mazeArray[y-1][x]);
 				cell.nbrs.add(mazeArray[y+1][x]);
@@ -44,16 +44,30 @@ public class Maze {
 		} else if (options.size() > 1){
 			divide (from, from.fNum, options);
 		} else {
-			ActionB _return = new ActionB (from); 
-			Thread goBack = new Thread(_return);
-			goBack.start();
-			//move.join();
-			if(_return.canProceed){
-				
-			};
+			if(from.isEdge && this.exit.fNum == this.entry.fNum){
+				System.out.println("To the pub!");
+			} else{
+				turnBack(from);
+			}
 		}
 	}
 	
+	private void turnBack(Cell from) {
+		ActionB _return = new ActionB (from); 
+		Thread goBack = new Thread(_return);
+		goBack.start();
+		//move.join();
+		if(_return.canProceed){
+			turnBack(from.parent);
+		}else{
+			ArrayList<Cell>options = findOptions(from);
+			if(options.size() > 1){
+				chooseWay(from);
+			}
+		}
+		
+	}
+
 	private void divide (Cell from, int group, ArrayList<Cell>options){
 		if (group > 0){
 			int party = group / options.size();
@@ -65,6 +79,7 @@ public class Maze {
 			divide(from, group - party, options);
 		}
 	}
+	
 	public void go (Cell from, Cell to, int howMany) {
 		ActionF action = new ActionF (from, to, howMany); 
 		Thread move = new Thread(action);
@@ -72,14 +87,10 @@ public class Maze {
 		//move.join();
 		if(action.canProceed){
 			chooseWay(to);
-		} else {
-			if(to.isEdge && this.exit.fNum == this.entry.fNum){
-				System.out.println("To the pub!");
-			}
-		}
+		} 
 	}
 	
-	public ArrayList<Cell> findOptions (Cell point){
+	public static ArrayList<Cell> findOptions (Cell point){
 		ArrayList<Cell> options = new ArrayList<Cell>();
 			for(Cell nbr : point.nbrs){
 				if(nbr.exitPath == true){
