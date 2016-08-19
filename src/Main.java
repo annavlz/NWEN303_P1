@@ -29,7 +29,7 @@ public class Main {
 	         }       
 	         br.close();	         
 	         Maze maze = new Maze(mazeArray, entryX, entryY);
-	         //maze.findExit(maze, fNum);
+	         maze.findExit(maze, fNum);
 	         
 	      } catch(Exception e){
 	         e.printStackTrace();

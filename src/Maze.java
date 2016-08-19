@@ -22,15 +22,24 @@ public class Maze {
 		for(int y = 0; y < mazeArray.length-1; y++){
 			for(int x = 0; x < mazeArray.length-1; x++){
 				Cell cell = mazeArray[y][x];
-				cell.nbrs.add(mazeArray[y-1][x]);
-				cell.nbrs.add(mazeArray[y+1][x]);
-				cell.nbrs.add(mazeArray[y][x-1]);
-				cell.nbrs.add(mazeArray[y][x+1]);
+				cell.nbrs.add(getCell(mazeArray, y-1,x));
+				cell.nbrs.add(getCell(mazeArray,y+1,x));
+				cell.nbrs.add(getCell(mazeArray,y,x-1));
+				cell.nbrs.add(getCell(mazeArray,y,x+1));
 			}
 		}		
 	}
 
-
+	private Cell getCell (Cell[][] mazeArray, int x, int y){
+		int size = mazeArray.length;
+		Cell cell;
+		if(x > 0 &&  y > 0 && x < size && y < size){
+			cell = mazeArray[y][x];
+		}else{
+			cell = null;
+		}
+		return cell;
+	}
 	public void findExit(Maze maze, int fNum) {
 		entry.fNum = fNum;
 		chooseWay(this.entry);	
@@ -44,11 +53,19 @@ public class Maze {
 		} else if (options.size() > 1){
 			divide (from, from.fNum, options);
 		} else {
-			if(from.isEdge && this.exit.fNum == this.entry.fNum){
+			if(from.isEdge && from.fNum == this.entry.fNum){
+				getPath(from);
 				System.out.println("To the pub!");
 			} else{
 				turnBack(from);
 			}
+		}
+	}
+	private void getPath (Cell from) {
+		System.out.println(from.parent);
+		while(from.parent != null){
+			System.out.println(from);
+			getPath(from.parent);
 		}
 	}
 	
