@@ -66,6 +66,7 @@ public class Cell {
 //		if(this.parent.name != null) { 
 //			parent = "parent " + this.parent.name;
 //		} else { }
-		return name + wall + entry + exitPath + deadEnd + "  " + friends + "    ";
+		return name + wall + entry + exitPath + deadEnd ;
+				//+ "  " + friends + "    ";
 	}
 }
