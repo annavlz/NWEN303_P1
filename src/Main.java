@@ -19,7 +19,7 @@ public class Main {
 	        	 String[] row = thisLine.split("");
 	        	 
 	        	 for(int i = 0; i < row.length; i++){
-	        		 Cell cell = new Cell(row[i]);
+	        		 Cell cell = new Cell(row[i], count + "-" + i);
 	        		 if(i == 0 || i == 9 || count == 0 || count == 9){
 	        			 cell.isEdge = true;
 	        		 }
