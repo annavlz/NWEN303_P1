@@ -4,6 +4,8 @@ import java.io.IOException;
 
 
 public class Main {
+	public static int startParty;
+	
 	public static void main(String[] args) {
 		String  thisLine = null;
       try{
@@ -27,9 +29,10 @@ public class Main {
 	        	 }	        	 
 	        	 count++;
 	         }       
-	         br.close();	         
-	         Maze maze = new Maze(mazeArray, entryX, entryY);
-	         maze.findExit(maze, fNum);
+	         br.close();	      
+	         startParty = fNum;
+	         Maze maze = new Maze(mazeArray, entryX, entryY, fNum);
+	         maze.findExit();
 	         
 	      } catch(Exception e){
 	         e.printStackTrace();

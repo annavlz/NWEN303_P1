@@ -1,24 +1,28 @@
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.locks.*;
 
-public class Cell {
-	boolean isWall;
+public class Cell implements Comparable<Cell> {
+	final int EXIT = 0;
+	final int NEW = 1;
+	final int LIVE = 2;
+	final int DEADEND = 3;
+	final int WALL = 4;
 	boolean isEdge;
-	boolean deadEnd;
+	int status;
 	ArrayList<Cell> nbrs = new ArrayList <Cell>();
-	boolean exitPath = false;
 	Cell parent;
 	int fNum = 0;
 	boolean isEntry = false;
 	String name;
-//	Collection<Cell> visited = new HashSet<Cell>();
+	Lock lock = new ReentrantLock();
 	
 	public Cell (String type, String name){
 		if(type.equals("X")){
-			this.isWall = true;
+			this.status = WALL;
 		} else {
-			this.isWall = false;
+			this.status = NEW;
 		}
 		this.name = name;
 	}
@@ -57,16 +61,20 @@ public class Cell {
 	@Override
 	public String toString(){
 		String name = "Name: " + this.name;
-		String wall = this.isWall ? " wall," : "";
-		String exitPath = this.exitPath ? " exitPath," : "";
-		String deadEnd = this.deadEnd ? " deadEnd," : "";
+		String wall = this.status == WALL ? " wall," : "";
+		String exitPath = this.status == EXIT ? " exitPath," : "";
+		String deadEnd = this.status == DEADEND ? " deadEnd," : "";
 		String entry = this.isEntry ? " entry," : "";
 		int friends = this.fNum;
-//		String parent = "";
-//		if(this.parent.name != null) { 
-//			parent = "parent " + this.parent.name;
-//		} else { }
 		return name + wall + entry + exitPath + deadEnd ;
-				//+ "  " + friends + "    ";
 	}
+
+
+
+	@Override
+	public int compareTo(Cell other) {
+		return Integer.compare(this.status, other.status);
+	}
+	
+	
 }
