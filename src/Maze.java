@@ -13,20 +13,20 @@ public class Maze {
 	int entryY;
 	Cell entry;
 	Cell exit;
-	final int startingParty;
+	boolean exitFound = false;
+	StopWatch w = new StopWatch();
 	
-	public Maze(Cell[][] mazeArray, int entryX, int entryY, int party) {
+	public Maze(Cell[][] mazeArray, int entryX, int entryY) {
 		this.mazeArray = mazeArray;
 		this.entryX = entryX;
 		this.entryY = entryY;
-		this.startingParty = party;
 		createMaze();
 	}
 
 	private void createMaze() {
 		this.entry = mazeArray[entryY][entryX];
 		this.entry.isEntry = true;
-//		this.entry.status = EXIT;
+		this.entry.status = EXIT;
 		for(int y = 0; y < mazeArray.length; y++){
 			for(int x = 0; x < mazeArray.length; x++){
 				Cell cell = mazeArray[y][x];
@@ -45,12 +45,12 @@ public class Maze {
 		}
 	}
 	public void findExit() throws InterruptedException {	
-		entry.fNum = this.startingParty;
+		entry.fNum = Main.startParty;
 		start(this.entry);	
 
 	}
 	
-	private void printMaze() {
+	public void printMaze() {
 		for(int y = 0; y < mazeArray.length; y++){
 			String mazeS = "";
 			for(int x = 0; x < mazeArray.length; x++){
@@ -68,12 +68,9 @@ public class Maze {
 	}
 
 	public void start (Cell from) throws InterruptedException {
-		Action action = new Action(from); 
+		Action action = new Action(from, this); 
 		Thread move = new Thread(action);
+		w.start();
 		move.start();
-//		try{
-//			Thread.sleep(1000);
-//			printMaze();
-//		}catch(InterruptedException ex){}
 	}
 }

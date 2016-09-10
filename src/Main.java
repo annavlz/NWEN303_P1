@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-
 public class Main {
 	public static int startParty;
 	
@@ -19,10 +18,9 @@ public class Main {
 	         int count = 0;
 	         while ((thisLine = br.readLine()) != null) {
 	        	 String[] row = thisLine.split("");
-	        	 
 	        	 for(int i = 0; i < row.length; i++){
 	        		 Cell cell = new Cell(row[i], count + "-" + i);
-	        		 if(i == 0 || i == 9 || count == 0 || count == 9){
+	        		 if(i == 0 || i == row.length-1 || count == 0 || count == row.length-1){
 	        			 cell.isEdge = true;
 	        		 }
 		        	 mazeArray[count][i] = cell;
@@ -31,7 +29,7 @@ public class Main {
 	         }       
 	         br.close();	      
 	         startParty = fNum;
-	         Maze maze = new Maze(mazeArray, entryX, entryY, fNum);
+	         Maze maze = new Maze(mazeArray, entryX, entryY);
 	         maze.findExit();
 	         
 	      } catch(Exception e){

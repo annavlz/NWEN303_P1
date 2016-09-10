@@ -10,16 +10,22 @@ public class Action implements Runnable {
 	Cell from;
 	Cell to;
 	int howMany;
+	Maze maze;
 	
-	public Action(Cell from){
+	
+	public Action(Cell from, Maze maze){
 		this.from = from;
+		this.maze = maze;
 	}
 	
-	public Action(Cell from, Cell to, int howMany){		
+	
+	public Action(Cell from, Cell to, int howMany, Maze maze){		
 		this.from = from;
 		this.to = to;
 		this.howMany = howMany;
+		this.maze = maze;
 	}
+	
 	
 	public void run(){
 		if(to != null){
@@ -29,6 +35,7 @@ public class Action implements Runnable {
 		}
 
 	}
+	
 	
 	private void chooseWay(Cell from) {
 		ArrayList<Cell> options = findOptions(from);
@@ -41,88 +48,119 @@ public class Action implements Runnable {
 				divide (from, from.fNum, options);
 			}
 		} else {
-//			System.out.println("FF");
-			if(from.isEdge && from.status != EXIT){
-				from.lock.lock();
-				try {
-					System.out.println("Yo  " + from.fNum);
-					markExitPath(from);
-				} finally {
-					from.lock.unlock();
-				}
-				if(from.fNum >= 8){
-					System.out.println("To the pub!  " + from.fNum);
-				}
-			} else if(from.isEdge && from.fNum == Main.startParty) { 
-				System.out.println("To the pub!  " + from.fNum);
-			} else{
+			if(from.isEdge){
+				while(true){
+					if(from.lock.tryLock()){
+						try {
+							if(from.status != EXIT && maze.exitFound == false){
+								maze.exitFound = true;
+								markExitPath(from);
+							}
+							if(from.status == EXIT){
+								if(from.fNum >= Main.startParty){
+									maze.w.stop();
+									System.out.println("To the pub!  " + from.fNum);
+									maze.printMaze();
+									System.out.println("  elapsed time: " + maze.w.getElapsedTime() + " ms");
+								}else{
+									System.out.println("Yo  " + from.fNum);
+								}
+							}else{
+								goBack(from);
+							}
+						} finally {
+							from.lock.unlock();			
+						}
+						return;
+					}
+				}			
+			}else{
 				goBack(from);
 			}
 		}
 	}
 	
+	
 	private void move(Cell from, Cell to, int party) {
-		
-		System.out.println(from + "     " + to + "     " + Thread.currentThread().getName() +"   "+ party + "  " +from.fNum + "  " +to.fNum);
-		
-		if(from.lock.tryLock()){
-			if(to.lock.tryLock()){ 
-				try{
-					if(from.fNum > 0 && to.status != DEADEND){
-			
-						if(from.status != EXIT){
-							from.status = LIVE;
+//		while(true){
+//			if(from.lock.tryLock()){
+//				if(to.lock.tryLock()){ 
+					try{			
+						to.semaphore.acquire();
+						if(from.fNum > 0 && to.status != DEADEND){						
+							if(from.status != EXIT){
+								from.status = LIVE;}
+							to.parent = from;
+							to.fNum += party;
+							from.fNum -= party;
+							to.semaphore.release();
+							chooseWay(to);
+						} else {
+							to.semaphore.release();
 						}
-						to.parent = from;
-						to.fNum += party;
-						from.fNum -= party;
-						chooseWay(to);
-					}			
-				}finally{
-					from.lock.unlock();
-					to.lock.unlock();
-				}
-			}else{
-				from.lock.unlock();
-			}
-		}
+					} catch(InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+//					}finally{
+//						from.lock.unlock();
+//						to.lock.unlock();
+//					}
+//					return;
+//				}else{
+//					from.lock.unlock();
+//				}
+//			}
+//		}
 	}
 	
 	
 	private void goBack(Cell from) {
-		from.lock.lock();
-		if(from.parent.lock.tryLock()){ 
-			try{
-				if(from.fNum > 0) {
-	
-					from.status = DEADEND;
-					from.parent.fNum += from.fNum;
-					from.fNum = 0;
-				}
-				if(from.parent.fNum > 0){
-					if(findOptions(from.parent).size() > 0){
-						chooseWay(from.parent);
-					} else {
-						goBack(from.parent);
+		
+//		while(true){
+//			if(from.lock.tryLock()){
+//				if(from.parent.lock.tryLock()){ 
+					try{
+						from.semaphore.acquire();
+						if(from.fNum > 0) {
+							from.status = DEADEND;
+							from.semaphore.release();
+							from.parent.fNum += from.fNum;
+							from.fNum = 0;
+						}else{
+							from.semaphore.release();
+						}
+						if(from.parent.fNum > 0){
+							if(findOptions(from.parent).size() > 0){
+								chooseWay(from.parent);
+							} else {
+								goBack(from.parent);
+							}
+						}
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				}
-			}finally{
-				from.lock.unlock();
-				from.parent.lock.unlock();
-			}
-		}else{
-			from.lock.unlock();
-		}
+//					}finally{
+//						from.lock.unlock();
+//						from.parent.lock.unlock();
+//					}
+//					return;
+//				}else{
+//					from.lock.unlock();
+//				}
+//			}
+//		}
 	}
 	
 	
 	private void markExitPath(Cell cell) {
-//		System.out.println("Exit path " + cell);
 		if(cell.parent != null){
 			cell.status = EXIT;
 			markExitPath(cell.parent);
 		}		
 	}
+	
 	
 	private ArrayList<Cell> findOptions (Cell point){
 		ArrayList<Cell> options = new ArrayList<Cell>();
@@ -135,19 +173,18 @@ public class Action implements Runnable {
 		return options;
 	}
 		
+	
 	private void divide (Cell from, int group, ArrayList<Cell> options){
 		while (group > 0 && options.size() > 0){
 			int party = group / options.size();
 			if(party == 0){
 				party = 1;
 			}
-			Action action = new Action(from, options.get(0), party ); 
+			Action action = new Action(from, options.get(0), party, this.maze ); 
 			Thread move = new Thread(action);
 			move.start();
 			options.remove(0);
 			divide(from, group - party, options);
 		}
 	}
-	
-
 }

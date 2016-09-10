@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.*;
 
 public class Cell implements Comparable<Cell> {
@@ -17,6 +18,8 @@ public class Cell implements Comparable<Cell> {
 	boolean isEntry = false;
 	String name;
 	Lock lock = new ReentrantLock();
+	Semaphore semaphore = new Semaphore(1);
+
 	
 	public Cell (String type, String name){
 		if(type.equals("X")){
@@ -28,7 +31,6 @@ public class Cell implements Comparable<Cell> {
 	}
 	
 	
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -36,7 +38,6 @@ public class Cell implements Comparable<Cell> {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
-
 
 
 	@Override
@@ -56,8 +57,7 @@ public class Cell implements Comparable<Cell> {
 		return true;
 	}
 
-
-
+	
 	@Override
 	public String toString(){
 		String name = "Name: " + this.name;
@@ -69,12 +69,9 @@ public class Cell implements Comparable<Cell> {
 		return name + wall + entry + exitPath + deadEnd ;
 	}
 
-
-
+	
 	@Override
 	public int compareTo(Cell other) {
 		return Integer.compare(this.status, other.status);
-	}
-	
-	
+	}	
 }
