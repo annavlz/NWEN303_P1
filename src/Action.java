@@ -29,7 +29,12 @@ public class Action implements Runnable {
 	
 	public void run(){
 		if(to != null){
-			move(from, to, this.howMany);
+			try {
+				from.semaphore.acquire();
+				move(from, to, this.howMany);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}else{
 			chooseWay(from);
 		}
@@ -40,12 +45,25 @@ public class Action implements Runnable {
 	private void chooseWay(Cell from) {
 		ArrayList<Cell> options = findOptions(from);
 		if(options.size() == 1){
-			move(from, options.get(0), from.fNum);
+			try {
+				from.semaphore.acquire();
+				move(from, options.get(0), from.fNum);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
 		} else if (options.size() > 1){
 			if(options.get(0).status == EXIT){
-				move(from, options.get(0), from.fNum);
+				try {
+					from.semaphore.acquire();
+					move(from, options.get(0), from.fNum);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}else{
-				divide (from, from.fNum, options);
+				if(from.fNum > 0) {
+					divide (from, from.fNum, options);
+				}
 			}
 		} else {
 			if(from.isEdge){
@@ -82,75 +100,48 @@ public class Action implements Runnable {
 	
 	
 	private void move(Cell from, Cell to, int party) {
-//		while(true){
-//			if(from.lock.tryLock()){
-//				if(to.lock.tryLock()){ 
-					try{			
-						to.semaphore.acquire();
-						if(from.fNum > 0 && to.status != DEADEND){						
-							if(from.status != EXIT){
-								from.status = LIVE;}
-							to.parent = from;
-							to.fNum += party;
-							from.fNum -= party;
-							to.semaphore.release();
-							chooseWay(to);
-						} else {
-							to.semaphore.release();
-						}
-					} catch(InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-//					}finally{
-//						from.lock.unlock();
-//						to.lock.unlock();
-//					}
-//					return;
-//				}else{
-//					from.lock.unlock();
-//				}
-//			}
-//		}
+		try{			
+			to.semaphore.acquire();
+			if(from.fNum > 0 && to.status != DEADEND){						
+				if(from.status != EXIT){
+					from.status = LIVE;}
+				to.parent = from;
+				to.fNum += party;
+				from.fNum -= party;
+				to.semaphore.release();
+				from.semaphore.release();
+				chooseWay(to);
+			} else {
+				to.semaphore.release();
+				from.semaphore.release();
+			}
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
 	private void goBack(Cell from) {
-		
-//		while(true){
-//			if(from.lock.tryLock()){
-//				if(from.parent.lock.tryLock()){ 
-					try{
-						from.semaphore.acquire();
-						if(from.fNum > 0) {
-							from.status = DEADEND;
-							from.semaphore.release();
-							from.parent.fNum += from.fNum;
-							from.fNum = 0;
-						}else{
-							from.semaphore.release();
-						}
-						if(from.parent.fNum > 0){
-							if(findOptions(from.parent).size() > 0){
-								chooseWay(from.parent);
-							} else {
-								goBack(from.parent);
-							}
-						}
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-//					}finally{
-//						from.lock.unlock();
-//						from.parent.lock.unlock();
-//					}
-//					return;
-//				}else{
-//					from.lock.unlock();
-//				}
-//			}
-//		}
+		try{
+			from.semaphore.acquire();
+			if(from.fNum > 0) {
+				from.status = DEADEND;
+				from.semaphore.release();
+				from.parent.fNum += from.fNum;
+				from.fNum = 0;
+			}else{
+				from.semaphore.release();
+			}
+			if(from.parent.fNum > 0){
+				if(findOptions(from.parent).size() > 0){
+					chooseWay(from.parent);
+				} else {
+					goBack(from.parent);
+				}
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
