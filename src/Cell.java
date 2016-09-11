@@ -17,7 +17,6 @@ public class Cell implements Comparable<Cell> {
 	int fNum = 0;
 	boolean isEntry = false;
 	String name;
-	Lock lock = new ReentrantLock();
 	Semaphore semaphore = new Semaphore(1);
 
 	

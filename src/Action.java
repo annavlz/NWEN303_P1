@@ -67,31 +67,32 @@ public class Action implements Runnable {
 			}
 		} else {
 			if(from.isEdge){
-				while(true){
-					if(from.lock.tryLock()){
-						try {
-							if(from.status != EXIT && maze.exitFound == false){
-								maze.exitFound = true;
-								markExitPath(from);
-							}
-							if(from.status == EXIT){
-								if(from.fNum >= Main.startParty){
-									maze.w.stop();
-									System.out.println("To the pub!  " + from.fNum);
-									maze.printMaze();
-									System.out.println("  elapsed time: " + maze.w.getElapsedTime() + " ms");
-								}else{
-									System.out.println("Yo  " + from.fNum);
-								}
-							}else{
-								goBack(from);
-							}
-						} finally {
-							from.lock.unlock();			
-						}
-						return;
+				try {
+					from.semaphore.acquire();
+					if(from.status != EXIT && maze.exitFound == false){
+						from.status = EXIT;
+						from.semaphore.release();
+						maze.exitFound = true;
+						System.out.println("Yo  " + from.fNum);
+						markExitPath(from);
 					}
-				}			
+					else if(from.status == EXIT){
+						from.semaphore.release();
+						if(from.fNum >= Main.startParty){
+							maze.w.stop();
+							System.out.println("To the pub!  " + from.fNum);
+							maze.printMaze();
+							System.out.println("  elapsed time: " + maze.w.getElapsedTime() + " ms");
+						}else{
+							System.out.println("Yo  " + from.fNum);
+						}
+					}else{
+						from.semaphore.release();
+						goBack(from);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}else{
 				goBack(from);
 			}
