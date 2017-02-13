@@ -64,7 +64,6 @@ public class Cell implements Comparable<Cell> {
 		String exitPath = this.status == EXIT ? " exitPath," : "";
 		String deadEnd = this.status == DEADEND ? " deadEnd," : "";
 		String entry = this.isEntry ? " entry," : "";
-		int friends = this.fNum;
 		return name + wall + entry + exitPath + deadEnd ;
 	}
 

@@ -18,6 +18,14 @@ public class Main {
 	         int count = 0;
 	         while ((thisLine = br.readLine()) != null) {
 	        	 String[] row = thisLine.split("");
+	        	 
+//	        	 This block should be used with txt files while running on Lighthouse
+//	        	 String[] rowR = thisLine.split("");
+//	        	 String[] row = new String[arraySize];
+//	        	 for(int i = 1; i < rowR.length; i++){
+//	        		 row[i-1] = rowR[i];
+//	        	 }
+
 	        	 for(int i = 0; i < row.length; i++){
 	        		 Cell cell = new Cell(row[i], count + "-" + i);
 	        		 if(i == 0 || i == row.length-1 || count == 0 || count == row.length-1){

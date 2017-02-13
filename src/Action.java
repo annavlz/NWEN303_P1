@@ -38,7 +38,6 @@ public class Action implements Runnable {
 		}else{
 			chooseWay(from);
 		}
-
 	}
 	
 	
@@ -71,21 +70,15 @@ public class Action implements Runnable {
 					from.semaphore.acquire();
 					if(from.status != EXIT && maze.exitFound == false){
 						from.status = EXIT;
+						int party = from.fNum;
 						from.semaphore.release();
-						maze.exitFound = true;
-						System.out.println("Yo  " + from.fNum);
+						maze.exitFound = true;	
 						markExitPath(from);
+						printMessage(party);
 					}
 					else if(from.status == EXIT){
+						printMessage(from.fNum);
 						from.semaphore.release();
-						if(from.fNum >= Main.startParty){
-							maze.w.stop();
-							System.out.println("To the pub!  " + from.fNum);
-							maze.printMaze();
-							System.out.println("  elapsed time: " + maze.w.getElapsedTime() + " ms");
-						}else{
-							System.out.println("Yo  " + from.fNum);
-						}
 					}else{
 						from.semaphore.release();
 						goBack(from);
@@ -100,6 +93,18 @@ public class Action implements Runnable {
 	}
 	
 	
+	private void printMessage(int fNum) {
+		if(fNum >= Main.startParty){
+			maze.w.stop();
+			System.out.println("To the pub!  " + fNum);
+			maze.printMaze();
+			System.out.println("  elapsed time: " + maze.w.getElapsedTime() + " ms");
+		}else{
+			System.out.println("Yo  " + fNum);
+		}		
+	}
+
+
 	private void move(Cell from, Cell to, int party) {
 		try{			
 			to.semaphore.acquire();
